@@ -26,7 +26,6 @@ module.exports.parseSimpleMovie = (selector, html) => {
 
 module.exports.parseDetailedMovie = (selector, html) => {
     const body = $("body").html(html);
-
     const detailedMovieSelector = selector.detailedMovieSelector;
     const actorSelector = selector.actorSelector;
 
@@ -44,15 +43,16 @@ module.exports.parseDetailedMovie = (selector, html) => {
         genres.push($genre.html());
     });
 
-    const releaseDateContainer = $(detailedMovieSelector.releaseDateSelector).hmtl(); // see what prints
+    const releaseDateContainer = $(detailedMovieSelector.releaseDateSelector).html(); // see what prints
 
     const actors = [];
 
     $(detailedMovieSelector.actorSelector).each((index, actor) => {
         const $actor = $(actor);
+console.log('actor');
 
         const actorName = actor.find(actorSelector.actorNameSelector).html();
-
+console.log('row 55');
         actors.push({
             name: actorName
         });
