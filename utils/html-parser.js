@@ -23,3 +23,54 @@ module.exports.parseSimpleMovie = (selector, html) => {
             return items;
         });
 };
+
+module.exports.parseDetailedMovie = (selector, html) => {
+    const body = $("body").html(html);
+
+    const detailedMovieSelector = selector.detailedMovieSelector;
+    const actorSelector = selector.actorSelector;
+
+    const posterLink = $(detailedMovieSelector.posterSelector).attr("src");
+    const trailerLink = $(detailedMovieSelector.trailerSelector).attr("href");
+    const title = $(detailedMovieSelector.trailerSelector).html();
+    const storyLine = $(detailedMovieSelector.storyLineSelector).html();
+    const genres = [];
+
+    console.log(title);
+
+    $(detailedMovieSelector.genresSelector).each((index, genre) => {
+        const $genre = $(genre);
+
+        genres.push($genre.html());
+    });
+
+    const releaseDateContainer = $(detailedMovieSelector.releaseDateSelector).hmtl(); // see what prints
+
+    const actors = [];
+
+    $(detailedMovieSelector.actorSelector).each((index, actor) => {
+        const $actor = $(actor);
+
+        const actorName = actor.find(actorSelector.actorNameSelector).html();
+
+        actors.push({
+            name: actorName
+        });
+    });
+
+    const movie = {
+            posterLink: posterLink,
+            trailerLink: trailerLink,
+            title: title,
+            storyLine: storyLine,
+            genres: genres,
+            actors: actors
+        };
+        console.log('here');
+        console.log(movie);
+
+    return Promise.resolve()
+        .then(() => {
+            return movie;
+        });
+};
