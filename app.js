@@ -44,7 +44,7 @@ httpRequester.get(movieUrl)
                 imageSelector: ".primary_photo img",
                 actorNameSelector: "td[itemprop=\"actor\"] a span",
                 imdbIdSelector: "td[itemprop=\"actor\"] a",
-                characterNameSelector: ".character div a"
+                characterNameSelector: ".character a"
             }
         }
 
@@ -52,7 +52,7 @@ httpRequester.get(movieUrl)
         return htmlParser.parseDetailedMovie(selector, html);
     })
     .then(movie => {
-        // console.log(movie);
+        console.log(movie);
     });
 //
 // function getMoviesFromUrl(url) {
