@@ -26,48 +26,54 @@ module.exports.parseSimpleMovie = (selector, html) => {
 
 module.exports.parseDetailedMovie = (selector, html) => {
     const body = $("body").html(html);
+
     const detailedMovieSelector = selector.detailedMovieSelector;
     const actorSelector = selector.actorSelector;
 
     const posterLink = $(detailedMovieSelector.posterSelector).attr("src");
+    console.log(posterLink);
     const trailerLink = $(detailedMovieSelector.trailerSelector).attr("href");
+    console.log(trailerLink);
     const title = $(detailedMovieSelector.trailerSelector).html();
+    console.log(title);
+    
     const storyLine = $(detailedMovieSelector.storyLineSelector).html();
+    console.log(storyLine);
+    
     const genres = [];
 
-    console.log(title);
+    // console.log(title);
 
     $(detailedMovieSelector.genresSelector).each((index, genre) => {
         const $genre = $(genre);
+        console.log($genre.html());
 
         genres.push($genre.html());
     });
 
     const releaseDateContainer = $(detailedMovieSelector.releaseDateSelector).html(); // see what prints
-
+    console.log(releaseDateContainer);
+    
     const actors = [];
 
+    console.log($(detailedMovieSelector.actorSelector));
     $(detailedMovieSelector.actorSelector).each((index, actor) => {
         const $actor = $(actor);
-console.log('actor');
 
-        const actorName = actor.find(actorSelector.actorNameSelector).html();
-console.log('row 55');
-        actors.push({
-            name: actorName
-        });
+        const actorName = $actor.find(actorSelector.actorNameSelector).html();
+        console.log(actorName);
+        actors.push({ name: actorName });
     });
 
-    const movie = {
-            posterLink: posterLink,
-            trailerLink: trailerLink,
-            title: title,
-            storyLine: storyLine,
-            genres: genres,
-            actors: actors
-        };
-        console.log('here');
-        console.log(movie);
+    const movie = { 
+        posterLink,
+        trailerLink,
+        title,
+        storyLine,
+        genres,
+        actors };
+        //console.log('here');
+        //console.log(movie);
 
     return Promise.resolve()
         .then(() => {
