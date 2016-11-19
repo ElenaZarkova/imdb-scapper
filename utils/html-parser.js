@@ -31,41 +31,46 @@ module.exports.parseDetailedMovie = (selector, html) => {
     const actorSelector = selector.actorSelector;
 
     const posterLink = $(detailedMovieSelector.posterSelector).attr("src");
-    console.log(posterLink);
     const trailerLink = $(detailedMovieSelector.trailerSelector).attr("href");
-    console.log(trailerLink);
-    const title = $(detailedMovieSelector.trailerSelector).html();
-    console.log(title);
-    
-    const storyLine = $(detailedMovieSelector.storyLineSelector).html();
-    console.log(storyLine);
-    
-    const genres = [];
 
-    // console.log(title);
+    const fullTitle = $(detailedMovieSelector.titleSelector).html();
+    const titleIndex = fullTitle.indexOf("&nbsp;");
+    const title = fullTitle.substring(0, titleIndex);
+
+    const storyLine = $(detailedMovieSelector.storyLineSelector).text().replace(/\s\s+/g, " ");
+
+    const genres = [];
 
     $(detailedMovieSelector.genresSelector).each((index, genre) => {
         const $genre = $(genre);
-        console.log($genre.html());
 
         genres.push($genre.html());
     });
 
     const releaseDateContainer = $(detailedMovieSelector.releaseDateSelector).html(); // see what prints
-    console.log(releaseDateContainer);
-    
+
+    const releaseDateStartIndex = releaseDateContainer.indexOf("Release Date:") + "Release Date:</h4> ".length;
+    const releaseDateEndIndex = releaseDateContainer.indexOf("<span", releaseDateStartIndex);
+
+    const releaseDate = releaseDateContainer.substr(releaseDateStartIndex, releaseDateEndIndex);
+
     const actors = [];
 
-    console.log($(detailedMovieSelector.actorSelector));
     $(detailedMovieSelector.actorSelector).each((index, actor) => {
+        if(index !== 0){
+
         const $actor = $(actor);
 
         const actorName = $actor.find(actorSelector.actorNameSelector).html();
-        console.log(actorName);
-        actors.push({ name: actorName });
+        const characterName = $actor.find(actorSelector.characterNameSelector).html();
+        const imageLink = $actor.find(actorSelector.imageSelector).attr("src");
+        const imdbLink = $actor.find(actorSelector.imdbIdSelector).attr("href");
+
+        actors.push({ actorName, characterName, imageLink, imdbLink });
+        }
     });
 
-    const movie = { 
+    const movie = {
         posterLink,
         trailerLink,
         title,
