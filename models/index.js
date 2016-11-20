@@ -10,5 +10,33 @@ module.exports = {
     },
     insertManySimpleMovies(movies) {
         SimpleMovie.insertMany(movies);
+    },
+    getDetailedMovie(detailedMovie) {
+        return DetailedMovie.getDetailedMovie(detailedMovie.posterLink,
+            detailedMovie.trailerLink,
+            detailedMovie.title,
+            detailedMovie.storyLine,
+            detailedMovie.releaseDate,
+            detailedMovie.genres,
+            detailedMovie.actors);
+    },
+    insertDetailedMovie(movie) {
+        console.log(movie);
+        movie.save((err, entry, numAffected) => {
+            console.log(err);
+            console.log(entry);
+            console.log(numAffected);
+        });
+    },
+    getActor(actor) {
+        return Actor.getActor(
+            actor.profileImageLink,
+            actor.actorName,
+            actor.actorBiography,
+            actor.movies
+        );
+    },
+    insertManyActors(actors) {
+        Actor.insertMany(actors);
     }
 };

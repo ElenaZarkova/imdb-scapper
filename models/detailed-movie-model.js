@@ -1,16 +1,3 @@
-// t least one cover image (its link)
-// Optional trailer (its link), if one is available
-// Title
-// Description/Storyline
-// Categories (Genres)
-// Release date
-// List of actors
-
-//     Nested documents
-//     Have name of the role in the movie, name, id in IMDB and profile image (its link)
-
-// Use this page for reference
-
 "use strict";
 
 const mongoose = require("mongoose"),
@@ -18,7 +5,7 @@ const mongoose = require("mongoose"),
 
 let ActorMovieSchema = new Schema({
     characterName: { type: String, required: true },
-    name: { type: String, required: true },
+    actorName: { type: String, required: true },
     imdbId: { type: String, required: true },
     profileImageLink: { type: String, required: true }
 });
@@ -29,10 +16,50 @@ let DetailedMovieSchema = new Schema({
     title: { type: String, required: true },
     storyLine: { type: String, required: true },
     genres: [String],
-    releaseDate: { type: Date, required: true },
-    actor: [ActorMovieSchema]
+    releaseDate: { type: String, required: true },
+    actors: [ActorMovieSchema]
 });
 
+// /name/nm3203072/?ref_=tt_cl_t14
+function extractId(imdbLink) {
+    let id = imdbLink.trim().split('/')[2];
+    return id;
+}
+
+let DetailedMovie;
+DetailedMovieSchema.statics.getDetailedMovie =
+    function (posterLink,
+        trailerLink,
+        title,
+        storyLine,
+        releaseDate,
+        genres,
+        actors) {
+        let parsedActors = actors.map(a => {
+            return {
+                characterName: a.characterName,
+                actorName: a.actorName,
+                imdbId: extractId(a.imdbLink),
+                profileImageLink: a.profileImageLink
+            };
+        });
+
+        return new DetailedMovie({
+            posterLink,
+            trailerLink,
+            title,
+            storyLine,
+            releaseDate,
+            genres,
+            actors: parsedActors
+        });
+    };
+
+
+ActorMovieSchema.virtual.imdbLink = function () {
+    return `http://imdb.com/name/${this.imdbId}/?ref_=tt_cl_t14`;
+};
+
 mongoose.model("DetailedMovie", DetailedMovieSchema);
-let DetailerMovie = mongoose.model("DetailedMovie");
-module.exports = DetailerMovie;
+DetailedMovie = mongoose.model("DetailedMovie");
+module.exports = DetailedMovie;

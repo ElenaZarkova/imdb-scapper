@@ -50,23 +50,22 @@ module.exports.parseDetailedMovie = (selector, html) => {
     const releaseDateContainer = $(detailedMovieSelector.releaseDateSelector).html(); // see what prints
 
     const releaseDateStartIndex = releaseDateContainer.indexOf("Release Date:") + "Release Date:</h4> ".length;
-    const releaseDateEndIndex = releaseDateContainer.indexOf("<span", releaseDateStartIndex);
+    const releaseDateEndIndex = releaseDateContainer.indexOf("\n", releaseDateStartIndex);
 
-    const releaseDate = releaseDateContainer.substr(releaseDateStartIndex, releaseDateEndIndex);
+    const releaseDate = releaseDateContainer.substring(releaseDateStartIndex, releaseDateEndIndex);
 
     const actors = [];
 
     $(detailedMovieSelector.actorSelector).each((index, actor) => {
-        if(index !== 0){
+        if (index !== 0) {
+            const $actor = $(actor);
 
-        const $actor = $(actor);
+            const actorName = $actor.find(actorSelector.actorNameSelector).html();
+            const characterName = $actor.find(actorSelector.characterNameSelector).text().trim();
+            const profileImageLink = $actor.find(actorSelector.imageSelector).attr("src");
+            const imdbLink = $actor.find(actorSelector.imdbIdSelector).attr("href");
 
-        const actorName = $actor.find(actorSelector.actorNameSelector).html();
-        const characterName = $actor.find(actorSelector.characterNameSelector).html();
-        const imageLink = $actor.find(actorSelector.imageSelector).attr("src");
-        const imdbLink = $actor.find(actorSelector.imdbIdSelector).attr("href");
-
-        actors.push({ actorName, characterName, imageLink, imdbLink });
+            actors.push({ actorName, characterName, profileImageLink, imdbLink });
         }
     });
 
@@ -75,8 +74,10 @@ module.exports.parseDetailedMovie = (selector, html) => {
         trailerLink,
         title,
         storyLine,
+        releaseDate,
         genres,
-        actors };
+        actors
+    };
 
     return Promise.resolve()
         .then(() => {
@@ -85,41 +86,41 @@ module.exports.parseDetailedMovie = (selector, html) => {
 };
 
 module.exports.parseActor = (selector, html) => {
-     $("body").html(html);
+    $("body").html(html);
 
-     const actorSelector = selector.actorSelector;
-     const actorMovieSelector = selector.actorMovieSelector;
+    const actorSelector = selector.actorSelector;
+    const actorMovieSelector = selector.actorMovieSelector;
 
-     const profileImageLink = $(actorSelector.profileImageSelector).attr("src");
-     const actorName = $(actorSelector.actorNameSelector).html();
-     const actorBiographyContainer = $(actorSelector.actorBiographySelector).html();
+    const profileImageLink = $(actorSelector.profileImageSelector).attr("src");
+    const actorName = $(actorSelector.actorNameSelector).html();
+    const actorBiographyContainer = $(actorSelector.actorBiographySelector).html();
 
-     const actorBiographyStartIndex = 1;
-     const actorBiographyEndIndex = actorBiographyContainer.indexOf(" <a href=");
+    const actorBiographyStartIndex = 1;
+    const actorBiographyEndIndex = actorBiographyContainer.indexOf(" <a href=");
 
-     const actorBiography = actorBiographyContainer.substr(actorBiographyStartIndex, actorBiographyEndIndex);
+    const actorBiography = actorBiographyContainer.substr(actorBiographyStartIndex, actorBiographyEndIndex);
 
-     const movies = [];
-     const actorMovies = $(actorSelector.actorMovieSelector).first().children('div');
-     actorMovies.each((index, movie) => {
+    const movies = [];
+    const actorMovies = $(actorSelector.actorMovieSelector).first().children('div');
+    actorMovies.each((index, movie) => {
 
-         const $movie = $(movie);
+        const $movie = $(movie);
 
-         const movieName = $movie.find(actorMovieSelector.movieNameAndIdSelector).html();
-         const movieId = $movie.find(actorMovieSelector.movieNameAndIdSelector).attr("href");
-         const characterName = $movie.find(actorMovieSelector.characterNameSelector).last().html();
+        const movieName = $movie.find(actorMovieSelector.movieNameAndIdSelector).html();
+        const movieLink = $movie.find(actorMovieSelector.movieNameAndIdSelector).attr("href");
+        const characterName = $movie.find(actorMovieSelector.characterNameSelector).last().html();
 
-         movies.push({movieName, movieId, characterName});
-     });
+        movies.push({ movieName, movieLink, characterName });
+    });
 
-     const actor = {
-         profileImageLink,
-         actorName,
-         actorBiography,
-         movies
-     };
+    const actor = {
+        profileImageLink,
+        actorName,
+        actorBiography,
+        movies
+    };
 
-     return Promise.resolve()
+    return Promise.resolve()
         .then(() => {
             return actor;
         });
