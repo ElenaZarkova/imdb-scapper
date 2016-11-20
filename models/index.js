@@ -5,6 +5,9 @@ const DetailedMovie = require("./detailed-movie-model");
 const Actor = require("./actor");
 
 module.exports = {
+    getAllSimpleMoviesUrls(){
+        return SimpleMovie.find().select("imdbId").exec();
+    },
     getSimpleMovie(name, url) {
         return SimpleMovie.getSimpleMovieByNameAndUrl(name, url);
     },

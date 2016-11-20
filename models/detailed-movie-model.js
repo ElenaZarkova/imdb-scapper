@@ -12,7 +12,7 @@ let ActorMovieSchema = new Schema({
 
 let DetailedMovieSchema = new Schema({
     posterLink: { type: String, required: true },
-    trailerLink: { type: String, required: true },
+    trailerLink: { type: String, required: true, default: "No trailer" }, // some movies did not have trailer
     title: { type: String, required: true },
     storyLine: { type: String, required: true },
     genres: [String],
