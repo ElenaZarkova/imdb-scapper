@@ -96,7 +96,7 @@ module.exports.parseActor = (selector, html) => {
     const actorBiographyContainer = $(actorSelector.actorBiographySelector).html();
 
     const actorBiographyStartIndex = 1;
-    const actorBiographyEndIndex = actorBiographyContainer.indexOf(" <a href=");
+    const actorBiographyEndIndex = actorBiographyContainer.indexOf(" <");
 
     const actorBiography = actorBiographyContainer.substr(actorBiographyStartIndex, actorBiographyEndIndex);
 

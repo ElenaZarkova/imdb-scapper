@@ -11,6 +11,7 @@ require("./config/mongoose")(constants.connectionString);
 
 let urlsQueue = queuesFactory.getQueue();
 let detailedMoviesUrlsQueue = queuesFactory.getQueue();
+let actorsUrlsQueue = queuesFactory.getQueue();
 
 function wait(time) {
     return new Promise((resolve) => {
@@ -22,6 +23,14 @@ function wait(time) {
 
 const asyncPagesCount = 15;
 
+
+constants.genres.forEach(genre => {
+    for (let i = 0; i < constants.pagesCount; i += 1) {
+        let url = `http://www.imdb.com/search/title?genres=${genre}&title_type=feature&0sort=moviemeter,asc&page=${i + 1}&view=simple&ref_=adv_nxt`;
+        urlsQueue.push(url);
+    }
+});
+
 // This should work but for some reason it does not!
 // Promise.resolve()
 //     .then(() => {
@@ -31,56 +40,35 @@ const asyncPagesCount = 15;
 //     .then(() => {
 
 
- modelsFactory.getSimpleMoviesUrls()
-    .then((urls) => {
-        urls.forEach(movieUrl => {
-            detailedMoviesUrlsQueue.push(movieUrl);
-        });
-    })
-    .then(() => {
-        const detailedMoviesCount = 15;
-        return Promise.all(Array.from({ length: detailedMoviesCount })
-            .map(() => getDetailedMoviesFromUrl(detailedMoviesUrlsQueue.pop())));
-    });
-
 // moviesUrls.forEach(movieUrl => {
 //     detailedMoviesUrlsQueue.push(movieUrl);
 // });
 
-constants.genres.forEach(genre => {
-    for (let i = 0; i < constants.pagesCount; i += 1) {
-        let url = `http://www.imdb.com/search/title?genres=${genre}&title_type=feature&0sort=moviemeter,asc&page=${i + 1}&view=simple&ref_=adv_nxt`;
-        urlsQueue.push(url);
-    }
-});
 
-
-//
-//
-// const actorUrl = "http://www.imdb.com/name/nm0000375/?ref_=nv_sr_2";
-// httpRequester.get(actorUrl)
-//     .then((result) => {
-//         const selector = {
-//             actorSelector: {
-//                 profileImageSelector: "#img_primary a img",
-//                 actorNameSelector: "span[itemprop=\"name\"]",
-//                 actorBiographySelector: "#name-bio-text div[itemprop=\"description\"]",
-//                 actorMovieSelector: "#filmography .filmo-category-section"
-//             },
-//             actorMovieSelector: {
-//                 movieNameAndIdSelector: "b a",
-//                 characterNameSelector: "a:last-child"
-//             }
-//         }
-//
-//         const html = result.body;
-//         return htmlParser.parseActor(selector, html);
+//  modelsFactory.getSimpleMoviesUrls()
+//     .then((urls) => {
+//         urls.forEach(movieUrl => {
+//             detailedMoviesUrlsQueue.push(movieUrl);
+//         });
 //     })
-//     .then(actor => {
-//         let dbActor = modelsFactory.getActor(actor);
-//         // console.log(dbActor);
-//         modelsFactory.insertManyActors([dbActor]);
+//     .then(() => {
+//         const detailedMoviesCount = 15;
+//         return Promise.all(Array.from({ length: detailedMoviesCount })
+//             .map(() => getDetailedMoviesFromUrl(detailedMoviesUrlsQueue.pop())));
 //     });
+
+modelsFactory.getAllActorUrls()
+    .then((urls) => {
+        urls.forEach(actorUrl => {
+            actorsUrlsQueue.push(actorUrl);
+        });
+    })
+    .then(() => {
+        const actorsCount = 15;
+        return Promise.all(Array.from({ length: actorsCount })
+            .map(() => getActorFromUrl(actorsUrlsQueue.pop())));
+    });
+
 
 function getMoviesFromUrl(url) {
     console.log(`Working with ${url}`);
@@ -110,7 +98,6 @@ function getMoviesFromUrl(url) {
             console.dir(err, { colors: true });
         });
 }
-
 
 // Some errors while inserting are possible due to diffrent html for detailed page, but most of the detailed movies are added correctly
 function getDetailedMoviesFromUrl(movieUrl) {
@@ -156,7 +143,42 @@ function getDetailedMoviesFromUrl(movieUrl) {
             console.dir(err, { colors: true });
         });
 }
-// 
 
- // Array.from({ length: asyncPagesCount })
- //     .forEach(() => getMoviesFromUrl(urlsQueue.pop()));
+function getActorFromUrl(actorUrl){
+    console.log(`Working with ${actorUrl}`);
+
+    httpRequester.get(actorUrl)
+    .then((result) => {
+        const selector = {
+            actorSelector: {
+                profileImageSelector: "#img_primary a img",
+                actorNameSelector: "span[itemprop=\"name\"]",
+                actorBiographySelector: "#name-bio-text div[itemprop=\"description\"]",
+                actorMovieSelector: "#filmography .filmo-category-section"
+            },
+            actorMovieSelector: {
+                movieNameAndIdSelector: "b a",
+                characterNameSelector: "a:last-child"
+            }
+        }
+
+        const html = result.body;
+        return htmlParser.parseActor(selector, html);
+    })
+    .then(actor => {
+        let dbActor = modelsFactory.getActor(actor);
+        modelsFactory.insertManyActors([dbActor]);
+
+        return wait(1000);
+    })
+    .then(() => {
+        if (actorsUrlsQueue.isEmpty()){
+            return;
+        }
+
+        getActorFromUrl(actorsUrlsQueue.pop());
+    })
+    .catch((err) => {
+            console.dir(err, { colors: true });
+    });
+}
