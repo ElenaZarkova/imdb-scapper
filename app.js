@@ -26,35 +26,61 @@ const constants = require("./config/constants");
 //     }
 // });
 
-const movieUrl = "http://www.imdb.com/title/tt1211837/?pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=2495768522&pf_rd_r=1CS87QBS7W60MRC6JFS0&pf_rd_s=right-7&pf_rd_t=15061&pf_rd_i=homepage&ref_=hm_cht_t0";
 
-httpRequester.get(movieUrl)
-    .then((result) => {
-        const selector = {
-            detailedMovieSelector : {
-                posterSelector: ".slate_wrapper .poster img",
-                trailerSelector: ".slate_wrapper .slate a",
-                titleSelector: ".title_wrapper h1", // remove span
-                storyLineSelector: "#titleStoryLine div[itemprop=\"description\"] p",
-                genresSelector: "#titleStoryLine div[itemprop=\"genre\"] a",
-                releaseDateSelector: "#titleDetails", // html indexOf ReleaseDate
-                actorSelector: "#titleCast .cast_list tr"
-            },
-            actorSelector : {
-                imageSelector: ".primary_photo img",
-                actorNameSelector: "td[itemprop=\"actor\"] a span",
-                imdbIdSelector: "td[itemprop=\"actor\"] a",
-                characterNameSelector: ".character a"
-            }
-        }
 
-        const html = result.body;
-        return htmlParser.parseDetailedMovie(selector, html);
-    })
-    .then(movie => {
-        console.log(movie);
-    });
+// const movieUrl = "http://www.imdb.com/title/tt1211837/?pf_rd_m=A2FGELUUNOQJNL&pf_rd_p=2495768522&pf_rd_r=1CS87QBS7W60MRC6JFS0&pf_rd_s=right-7&pf_rd_t=15061&pf_rd_i=homepage&ref_=hm_cht_t0";
+
+// httpRequester.get(movieUrl)
+//     .then((result) => {
+//         const selector = {
+//             detailedMovieSelector : {
+//                 posterSelector: ".slate_wrapper .poster img",
+//                 trailerSelector: ".slate_wrapper .slate a",
+//                 titleSelector: ".title_wrapper h1", // remove span
+//                 storyLineSelector: "#titleStoryLine div[itemprop=\"description\"] p",
+//                 genresSelector: "#titleStoryLine div[itemprop=\"genre\"] a",
+//                 releaseDateSelector: "#titleDetails", // html indexOf ReleaseDate
+//                 actorSelector: "#titleCast .cast_list tr"
+//             },
+//             actorSelector : {
+//                 imageSelector: ".primary_photo img",
+//                 actorNameSelector: "td[itemprop=\"actor\"] a span",
+//                 imdbIdSelector: "td[itemprop=\"actor\"] a",
+//                 characterNameSelector: ".character a"
+//             }
+//         }
+
+//         const html = result.body;
+//         return htmlParser.parseDetailedMovie(selector, html);
+//     })
+//     .then(movie => {
+//         console.log(movie);
+//     });
 //
+
+    const actorUrl = "http://www.imdb.com/name/nm0000375/?ref_=nv_sr_2";
+    httpRequester.get(actorUrl)
+        .then((result) => {
+            const selector = {
+                actorSelector: {
+                    profileImageSelector: "#img_primary a img",
+                    actorNameSelector: "span[itemprop=\"name\"]",
+                    actorBiographySelector: "#name-bio-text div[itemprop=\"description\"]",
+                    actorMovieSelector: "#filmography .filmo-category-section"
+                },
+                actorMovieSelector: {
+                    movieNameAndIdSelector: "b a",
+                    characterNameSelector: "a:last-child"
+                }
+            }
+
+            const html = result.body;
+            return htmlParser.parseActor(selector, html);
+        })
+        .then(actor => {
+            console.log(actor);
+        });
+
 // function getMoviesFromUrl(url) {
 //     console.log(`Working with ${url}`);
 //     httpRequester.get(url)

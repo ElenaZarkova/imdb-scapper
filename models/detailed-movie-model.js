@@ -34,5 +34,5 @@ let DetailedMovieSchema = new Schema({
 });
 
 mongoose.model("DetailedMovie", DetailedMovieSchema);
-let Actor = mongoose.model("DetailedMovie");
-module.exports = Actor;
+let DetailerMovie = mongoose.model("DetailedMovie");
+module.exports = DetailerMovie;

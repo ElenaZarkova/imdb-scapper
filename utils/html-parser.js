@@ -77,11 +77,50 @@ module.exports.parseDetailedMovie = (selector, html) => {
         storyLine,
         genres,
         actors };
-        //console.log('here');
-        //console.log(movie);
 
     return Promise.resolve()
         .then(() => {
             return movie;
         });
 };
+
+module.exports.parseActor = (selector, html) => {
+     $("body").html(html);
+
+     const actorSelector = selector.actorSelector;
+     const actorMovieSelector = selector.actorMovieSelector;
+
+     const profileImageLink = $(actorSelector.profileImageSelector).attr("src");
+     const actorName = $(actorSelector.actorNameSelector).html();
+     const actorBiographyContainer = $(actorSelector.actorBiographySelector).html();
+
+     const actorBiographyStartIndex = 1;
+     const actorBiographyEndIndex = actorBiographyContainer.indexOf(" <a href=");
+
+     const actorBiography = actorBiographyContainer.substr(actorBiographyStartIndex, actorBiographyEndIndex);
+
+     const movies = [];
+     const actorMovies = $(actorSelector.actorMovieSelector).first().children('div');
+     actorMovies.each((index, movie) => {
+
+         const $movie = $(movie);
+
+         const movieName = $movie.find(actorMovieSelector.movieNameAndIdSelector).html();
+         const movieId = $movie.find(actorMovieSelector.movieNameAndIdSelector).attr("href");
+         const characterName = $movie.find(actorMovieSelector.characterNameSelector).last().html();
+
+         movies.push({movieName, movieId, characterName});
+     });
+
+     const actor = {
+         profileImageLink,
+         actorName,
+         actorBiography,
+         movies
+     };
+
+     return Promise.resolve()
+        .then(() => {
+            return actor;
+        });
+}
