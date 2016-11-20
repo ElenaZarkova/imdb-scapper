@@ -5,9 +5,6 @@ const DetailedMovie = require("./detailed-movie-model");
 const Actor = require("./actor");
 
 module.exports = {
-    getAllSimpleMoviesUrls(){
-        return SimpleMovie.find().select("imdbId").exec();
-    },
     getSimpleMovie(name, url) {
         return SimpleMovie.getSimpleMovieByNameAndUrl(name, url);
     },
@@ -24,10 +21,7 @@ module.exports = {
             detailedMovie.actors);
     },
     insertDetailedMovie(movie) {
-        movie.save((err, entry, numAffected) => {
-            console.log(err);
-            console.log(numAffected);
-        });
+        movie.save();
     },
     getActor(actor) {
         return Actor.getActor(

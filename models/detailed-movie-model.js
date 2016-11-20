@@ -3,6 +3,8 @@
 const mongoose = require("mongoose"),
     Schema = mongoose.Schema;
 
+const templates = require("../config/string-templates-constants");
+
 let ActorMovieSchema = new Schema({
     characterName: { type: String, required: true },
     actorName: { type: String, required: true },
@@ -58,7 +60,7 @@ DetailedMovieSchema.statics.getDetailedMovie =
 
 DetailedMovieSchema.virtual('actorsUrls').get(function () {
     let urls = [];
-    this.actors.forEach(a => urls.push(`http://imdb.com/name/${a.imdbId}/?ref_=tt_cl_t14`));
+    this.actors.forEach(a => urls.push(templates.actorUrl({ imdbId: a.imdbId })));
     return urls;
 });
 

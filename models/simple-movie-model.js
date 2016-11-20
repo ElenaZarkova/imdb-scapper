@@ -4,6 +4,8 @@
 const mongoose = require("mongoose"),
     Schema = mongoose.Schema;
 
+const templates = require("../config/string-templates-constants");
+
 let SimpleMovieSchema = new Schema({
     name: {
         type: String,
@@ -29,7 +31,7 @@ SimpleMovieSchema.statics.getSimpleMovieByNameAndUrl =
     };
 
 SimpleMovieSchema.virtual('imdbUrl').get(function() {
-    return `http://imdb.com/title/${this.imdbId}/?ref_=adv_li_tt`;
+    return templates.movieUrl({ imdbId: this.imdbId });
 });
 
 mongoose.model("SimpleMovie", SimpleMovieSchema);

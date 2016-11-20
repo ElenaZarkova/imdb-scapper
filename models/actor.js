@@ -3,6 +3,8 @@
 const mongoose = require("mongoose"),
     Schema = mongoose.Schema;
 
+const templates = require("../config/string-templates-constants");
+
 let ActorMovieSchema = new Schema({
     name: { type: String, required: true },
     imdbId: { type: String, required: true },
@@ -38,7 +40,7 @@ ActorSchema.statics.getActor =
     };
 
 ActorMovieSchema.virtual.imdbUrl = function () {
-    return `http://imdb.com/title/${this.imdbId}/?ref_=adv_li_tt`;
+    return templates.movieUrl({ imdbId: this.imdbId });
 };
 
 mongoose.model("Actor", ActorSchema);
