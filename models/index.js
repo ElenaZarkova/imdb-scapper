@@ -24,10 +24,8 @@ module.exports = {
             detailedMovie.actors);
     },
     insertDetailedMovie(movie) {
-        console.log(movie);
         movie.save((err, entry, numAffected) => {
             console.log(err);
-            console.log(entry);
             console.log(numAffected);
         });
     },
@@ -41,5 +39,32 @@ module.exports = {
     },
     insertManyActors(actors) {
         Actor.insertMany(actors);
+    },
+    getSimpleMoviesUrls() {
+        return new Promise((resolve, reject) => {
+            SimpleMovie.find({}, 'imdbId')
+                .exec((err, result) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        console.log(result[0].imdbUrl);
+                        resolve(result.map(x => x.imdbUrl));
+                    }
+                });
+        });
+    },
+    getAllActorUrls() {
+        return new Promise((resolve, reject) => {
+            DetailedMovie.find({}, 'actors')
+                .exec((err, result) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        let links = [];
+                        result.forEach(x => links.push(...x.actorsUrls));
+                        resolve(links);
+                    }
+                });
+        });
     }
 };

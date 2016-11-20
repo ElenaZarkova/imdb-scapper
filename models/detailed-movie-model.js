@@ -56,9 +56,11 @@ DetailedMovieSchema.statics.getDetailedMovie =
     };
 
 
-ActorMovieSchema.virtual.imdbLink = function () {
-    return `http://imdb.com/name/${this.imdbId}/?ref_=tt_cl_t14`;
-};
+DetailedMovieSchema.virtual('actorsUrls').get(function () {
+    let urls = [];
+    this.actors.forEach(a => urls.push(`http://imdb.com/name/${a.imdbId}/?ref_=tt_cl_t14`));
+    return urls;
+});
 
 mongoose.model("DetailedMovie", DetailedMovieSchema);
 DetailedMovie = mongoose.model("DetailedMovie");

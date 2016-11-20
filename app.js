@@ -20,16 +20,27 @@ function wait(time) {
     });
 }
 
-modelsFactory.getAllSimpleMoviesUrls()
+const asyncPagesCount = 15;
+
+// This should work but for some reason it does not!
+// Promise.resolve()
+//     .then(() => {
+//         return Promise.all(Array.from({ length: asyncPagesCount })
+//             .map(() => getMoviesFromUrl(urlsQueue.pop())));
+//     })
+//     .then(() => {
+
+
+ modelsFactory.getSimpleMoviesUrls()
     .then((urls) => {
         urls.forEach(movieUrl => {
-            detailedMoviesUrlsQueue.push(`http://imdb.com/title/${movieUrl.imdbId}/?ref_=adv_li_tt`);
-        })
+            detailedMoviesUrlsQueue.push(movieUrl);
+        });
     })
     .then(() => {
-        const asyncPagesCount = 15;
-        Array.from({ length: asyncPagesCount })
-            .forEach(() => getDetailedMoviesFromUrl(detailedMoviesUrlsQueue.pop()));
+        const detailedMoviesCount = 15;
+        return Promise.all(Array.from({ length: detailedMoviesCount })
+            .map(() => getDetailedMoviesFromUrl(detailedMoviesUrlsQueue.pop())));
     });
 
 // moviesUrls.forEach(movieUrl => {
@@ -43,11 +54,69 @@ constants.genres.forEach(genre => {
     }
 });
 
+
+//
+//
+// const actorUrl = "http://www.imdb.com/name/nm0000375/?ref_=nv_sr_2";
+// httpRequester.get(actorUrl)
+//     .then((result) => {
+//         const selector = {
+//             actorSelector: {
+//                 profileImageSelector: "#img_primary a img",
+//                 actorNameSelector: "span[itemprop=\"name\"]",
+//                 actorBiographySelector: "#name-bio-text div[itemprop=\"description\"]",
+//                 actorMovieSelector: "#filmography .filmo-category-section"
+//             },
+//             actorMovieSelector: {
+//                 movieNameAndIdSelector: "b a",
+//                 characterNameSelector: "a:last-child"
+//             }
+//         }
+//
+//         const html = result.body;
+//         return htmlParser.parseActor(selector, html);
+//     })
+//     .then(actor => {
+//         let dbActor = modelsFactory.getActor(actor);
+//         // console.log(dbActor);
+//         modelsFactory.insertManyActors([dbActor]);
+//     });
+
+function getMoviesFromUrl(url) {
+    console.log(`Working with ${url}`);
+    return httpRequester.get(url)
+        .then((result) => {
+            const selector = ".col-title span[title] a";
+            const html = result.body;
+            return htmlParser.parseSimpleMovie(selector, html);
+        })
+        .then(movies => {
+            let dbMovies = movies.map(movie => {
+                return modelsFactory.getSimpleMovie(movie.title, movie.url);
+            });
+
+            modelsFactory.insertManySimpleMovies(dbMovies);
+
+            return wait(1000);
+        })
+        .then(() => {
+            if (urlsQueue.isEmpty()) {
+                return Promise.resolve();
+            }
+
+            getMoviesFromUrl(urlsQueue.pop());
+        })
+        .catch((err) => {
+            console.dir(err, { colors: true });
+        });
+}
+
+
 // Some errors while inserting are possible due to diffrent html for detailed page, but most of the detailed movies are added correctly
-function getDetailedMoviesFromUrl(movieUrl){
+function getDetailedMoviesFromUrl(movieUrl) {
     console.log(`Working with ${movieUrl}`);
 
-    httpRequester.get(movieUrl)
+    return httpRequester.get(movieUrl)
         .then((result) => {
             const selector = {
                 detailedMovieSelector: {
@@ -86,65 +155,8 @@ function getDetailedMoviesFromUrl(movieUrl){
         .catch((err) => {
             console.dir(err, { colors: true });
         });
-};
-
-//
-//
-// const actorUrl = "http://www.imdb.com/name/nm0000375/?ref_=nv_sr_2";
-// httpRequester.get(actorUrl)
-//     .then((result) => {
-//         const selector = {
-//             actorSelector: {
-//                 profileImageSelector: "#img_primary a img",
-//                 actorNameSelector: "span[itemprop=\"name\"]",
-//                 actorBiographySelector: "#name-bio-text div[itemprop=\"description\"]",
-//                 actorMovieSelector: "#filmography .filmo-category-section"
-//             },
-//             actorMovieSelector: {
-//                 movieNameAndIdSelector: "b a",
-//                 characterNameSelector: "a:last-child"
-//             }
-//         }
-//
-//         const html = result.body;
-//         return htmlParser.parseActor(selector, html);
-//     })
-//     .then(actor => {
-//         let dbActor = modelsFactory.getActor(actor);
-//         // console.log(dbActor);
-//         modelsFactory.insertManyActors([dbActor]);
-//     });
-
-function getMoviesFromUrl(url) {
-    console.log(`Working with ${url}`);
-    httpRequester.get(url)
-        .then((result) => {
-            const selector = ".col-title span[title] a";
-            const html = result.body;
-            return htmlParser.parseSimpleMovie(selector, html);
-        })
-        .then(movies => {
-            let dbMovies = movies.map(movie => {
-                return modelsFactory.getSimpleMovie(movie.title, movie.url);
-            });
-
-            modelsFactory.insertManySimpleMovies(dbMovies);
-
-            return wait(1000);
-        })
-        .then(() => {
-            if (urlsQueue.isEmpty()) {
-                return;
-            }
-
-            getMoviesFromUrl(urlsQueue.pop());
-        })
-        .catch((err) => {
-            console.dir(err, { colors: true });
-        });
 }
-
-// const asyncPagesCount = 15;
+// 
 
  // Array.from({ length: asyncPagesCount })
  //     .forEach(() => getMoviesFromUrl(urlsQueue.pop()));
