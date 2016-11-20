@@ -74,7 +74,7 @@ function getMoviesFromUrl(url) {
     console.log(`Working with ${url}`);
     return httpRequester.get(url)
         .then((result) => {
-            const selector = ".col-title span[title] a";
+            const selector = constants.simpleMovieSelector;
             const html = result.body;
             return htmlParser.parseSimpleMovie(selector, html);
         })
@@ -105,23 +105,7 @@ function getDetailedMoviesFromUrl(movieUrl) {
 
     return httpRequester.get(movieUrl)
         .then((result) => {
-            const selector = {
-                detailedMovieSelector: {
-                    posterSelector: ".poster img",
-                    trailerSelector: ".slate a",
-                    titleSelector: ".title_wrapper h1", // remove span
-                    storyLineSelector: "#titleStoryLine div[itemprop=\"description\"] p",
-                    genresSelector: "#titleStoryLine div[itemprop=\"genre\"] a",
-                    releaseDateSelector: "#titleDetails", // html indexOf ReleaseDate
-                    actorSelector: "#titleCast .cast_list tr"
-                },
-                actorSelector: {
-                    imageSelector: ".primary_photo img",
-                    actorNameSelector: "td[itemprop=\"actor\"] a span",
-                    imdbIdSelector: "td[itemprop=\"actor\"] a",
-                    characterNameSelector: ".character"
-                }
-            };
+            const selector = constants.gettingDetailedMovieSelector;
 
             const html = result.body;
             return htmlParser.parseDetailedMovie(selector, html);
@@ -149,18 +133,7 @@ function getActorFromUrl(actorUrl){
 
     httpRequester.get(actorUrl)
     .then((result) => {
-        const selector = {
-            actorSelector: {
-                profileImageSelector: "#img_primary a img",
-                actorNameSelector: "span[itemprop=\"name\"]",
-                actorBiographySelector: "#name-bio-text div[itemprop=\"description\"]",
-                actorMovieSelector: "#filmography .filmo-category-section"
-            },
-            actorMovieSelector: {
-                movieNameAndIdSelector: "b a",
-                characterNameSelector: "a:last-child"
-            }
-        }
+        const selector = constants.gettingActorSelector;
 
         const html = result.body;
         return htmlParser.parseActor(selector, html);
